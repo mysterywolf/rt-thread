@@ -16,16 +16,20 @@ menu "Onboard Peripheral Drivers"
         default y
 
     config BSP_USING_QSPI_FLASH
-        bool "Enable QSPI FLASH (W25Q128 qspi1)"
+        bool "Enable QSPI FLASH with SFUD (W25Q128 qspi1)"
         select BSP_USING_QSPI
         select RT_USING_SFUD
         select RT_SFUD_USING_QSPI
         default n
-    
-    config BSP_USING_SPI_LCD
-        bool "Enable LCD (spi3)"
-        select BSP_USING_SPI
-        select BSP_USING_SPI3
+
+    config BSP_USING_LITTLEFS
+        bool "Enable QSPI FLASH with littlefs (W25Q128 qspi1)"
+        select BSP_USING_QSPI_FLASH
+        select PKG_USING_FAL
+        select FAL_USING_SFUD_PORT
+        select RT_USING_MTD_NOR
+        select RT_USING_DFS
+        select PKG_USING_LITTLEFS
         default n
 
     config BSP_USING_SDCARD
@@ -35,6 +39,12 @@ menu "Onboard Peripheral Drivers"
         select RT_USING_SPI_MSD
         select RT_USING_DFS
         select RT_USING_DFS_ELMFAT
+        default n
+
+    config BSP_USING_SPI_LCD
+        bool "Enable LCD (spi3)"
+        select BSP_USING_SPI
+        select BSP_USING_SPI3
         default n
 
     config BSP_USING_ICM20608

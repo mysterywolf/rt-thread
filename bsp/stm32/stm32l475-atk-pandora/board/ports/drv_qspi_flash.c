@@ -74,7 +74,49 @@ static int rt_hw_qspi_flash_with_sfud_init(void)
 }
 INIT_COMPONENT_EXPORT(rt_hw_qspi_flash_with_sfud_init);
 
-#if defined(RT_USING_DFS_ELMFAT) && !defined(BSP_USING_SDCARD)
+#ifdef BSP_USING_LITTLEFS
+#define FS_PARTITION_NAME              "filesystem"
+
+#include <fal.h>
+#include <dfs_fs.h>
+
+int qspi_littlefs_init(void)
+{
+    struct rt_device *mtd_dev = RT_NULL;
+
+    fal_init();
+
+    mtd_dev = fal_mtd_nor_device_create(FS_PARTITION_NAME);
+    if (!mtd_dev)
+    {
+        rt_kprintf("Can't create a mtd device on '%s' partition.", FS_PARTITION_NAME);
+    }
+    else
+    {
+        if (dfs_mount(FS_PARTITION_NAME, "/", "lfs", 0, 0) == 0)
+        {
+            rt_kprintf("Filesystem initialized!");
+        }
+        else
+        {
+            dfs_mkfs("lfs", FS_PARTITION_NAME);
+            if (dfs_mount("filesystem", "/", "lfs", 0, 0) == 0)
+            {
+                rt_kprintf("Filesystem initialized!");
+            }
+            else
+            {
+                rt_kprintf("Failed to initialize filesystem!");
+            }
+        }
+    }
+
+    return 0;
+}
+INIT_APP_EXPORT(qspi_littlefs_init);
+#endif
+
+#if defined(RT_USING_DFS_ELMFAT) && !defined(BSP_USING_SDCARD) && !defined (BSP_USING_LITTLEFS)
 #include <dfs_fs.h>
 
 #define BLK_DEV_NAME  "W25Q128"
