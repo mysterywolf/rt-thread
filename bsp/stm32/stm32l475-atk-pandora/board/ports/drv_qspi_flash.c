@@ -19,6 +19,8 @@
 #include "spi_flash.h"
 #include "spi_flash_sfud.h"
 
+#define BLK_DEV_NAME  "norflash0"
+
 char w25qxx_read_status_register2(struct rt_qspi_device *device)
 {
     /* 0x35 read status register2 */
@@ -65,7 +67,7 @@ static int rt_hw_qspi_flash_with_sfud_init(void)
     stm32_qspi_bus_attach_device("qspi1", "qspi10", RT_NULL, 4, w25qxx_enter_qspi_mode, RT_NULL);
 
     /* init w25q128 */
-    if (RT_NULL == rt_sfud_flash_probe("W25Q128", "qspi10"))
+    if (RT_NULL == rt_sfud_flash_probe(BLK_DEV_NAME, "qspi10"))
     {
         return -RT_ERROR;
     }
@@ -118,8 +120,6 @@ INIT_APP_EXPORT(qspi_littlefs_init);
 
 #if defined(RT_USING_DFS_ELMFAT) && !defined(BSP_USING_SDCARD) && !defined (BSP_USING_LITTLEFS)
 #include <dfs_fs.h>
-
-#define BLK_DEV_NAME  "W25Q128"
 
 int mnt_init(void)
 {
