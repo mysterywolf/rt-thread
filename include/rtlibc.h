@@ -15,7 +15,7 @@
 #include "libc/libc_stat.h"
 
 #include "libc/libc_fcntl.h"
-#include "libc/libc_dirent.h"
+
 #include "libc/libc_signal.h"
 #include "libc/libc_fdset.h"
 #include "libc/libc_stdio.h"
