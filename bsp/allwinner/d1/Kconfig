@@ -39,5 +39,5 @@ config __STACKSIZE__
     int "stack size for interrupt"
     default 4096
 
-source "../libraries/drivers/Kconfig"
-source "../libraries/Kconfig"
+source "$BSP_DIR/../libraries/drivers/Kconfig"
+source "$BSP_DIR/../libraries/Kconfig"

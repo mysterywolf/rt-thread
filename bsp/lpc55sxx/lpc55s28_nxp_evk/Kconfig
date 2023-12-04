@@ -23,5 +23,5 @@ config SOC_LPC55S28
 
 source "$RTT_DIR/Kconfig"
 source "$PKGS_DIR/Kconfig"
-source "../Libraries/Kconfig"
-source "board/Kconfig"
+source "$BSP_DIR/../Libraries/Kconfig"
+source "$BSP_DIR/board/Kconfig"

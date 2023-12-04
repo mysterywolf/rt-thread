@@ -24,8 +24,8 @@ config SOC_STM32F407IG
 
 source "$RTT_DIR/Kconfig"
 source "$PKGS_DIR/Kconfig"
-source "../libraries/Kconfig"
+source "$BSP_DIR/../libraries/Kconfig"
 
 if !RT_USING_NANO
-source "board/Kconfig"
+source "$BSP_DIR/board/Kconfig"
 endif

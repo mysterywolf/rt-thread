@@ -18,9 +18,9 @@ config PKGS_DIR
 config LIBRARIES_DIR
     string
     option env="LIBRARIES_DIR"
-    default "../libraries"
+    default "$BSP_DIR/../libraries"
 
 source "$RTT_DIR/Kconfig"
 source "$PKGS_DIR/Kconfig"
-source "board/Kconfig"
+source "$BSP_DIR/board/Kconfig"
 source "$LIBRARIES_DIR/Kconfig"

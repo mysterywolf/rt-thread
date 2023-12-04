@@ -148,9 +148,9 @@ def bsp_update_kconfig_library(dist_dir):
         for line in data:
             if line.find('RTT_ROOT') != -1:
                 found = 1
-            if line.find('../libraries') != -1 and found:
-                position = line.find('../libraries')
-                line = line[0:position] + 'libraries/Kconfig"\n'
+            if line.find('$BSP_DIR/../libraries') != -1 and found:
+                position = line.find('$BSP_DIR/../libraries')
+                line = line[0:position] + '$BSP_DIR/libraries/Kconfig"\n'
                 found = 0
             f.write(line)
 
@@ -162,9 +162,9 @@ def bsp_update_kconfig_library(dist_dir):
         data = f.readlines()
     with open(os.path.join(dist_dir, 'board/Kconfig'), 'w') as f:
         for line in data:
-            if line.find('../libraries/HAL_Drivers/drivers/Kconfig') != -1:
-                position = line.find('../libraries/HAL_Drivers/drivers/Kconfig')
-                line = line[0:position] + 'libraries/HAL_Drivers/drivers/Kconfig"\n'
+            if line.find('$BSP_DIR/../libraries/HAL_Drivers/drivers/Kconfig') != -1:
+                position = line.find('$BSP_DIR/../libraries/HAL_Drivers/drivers/Kconfig')
+                line = line[0:position] + '$BSP_DIR/libraries/HAL_Drivers/drivers/Kconfig"\n'
             f.write(line)
 
 def zip_dist(dist_dir, dist_name):

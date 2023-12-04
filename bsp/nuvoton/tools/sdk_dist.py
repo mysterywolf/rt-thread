@@ -10,7 +10,7 @@ def dist_modify_relative_path(board_kconfig_path):
         filedata = file.read()
 
     # Replace the target string
-    filedata = filedata.replace('$BSP_DIR/../libraries', './libraries')
+    filedata = filedata.replace('$BSP_DIR/../libraries', '$BSP_DIR/libraries')
 
     # Write the file out again
     with open(board_kconfig_path, 'w') as file:

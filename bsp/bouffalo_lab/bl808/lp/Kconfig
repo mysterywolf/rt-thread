@@ -22,5 +22,5 @@ config LIBRARIES_DIR
 
 source "$RTT_DIR/Kconfig"
 source "$PKGS_DIR/Kconfig"
-source "board/Kconfig"
+source "$BSP_DIR/board/Kconfig"
 source "$LIBRARIES_DIR/Kconfig"

@@ -29,8 +29,8 @@ def dist_do_building(BSP_ROOT, dist_dir):
         for line in data:
             if line.find('RTT_ROOT') != -1:
                 found = 1
-            if line.find('../Libraries') != -1 and found:
-                position = line.find('../Libraries')
-                line = line[0:position] + 'Libraries/Kconfig"\n'
+            if line.find('$BSP_DIR/../Libraries') != -1 and found:
+                position = line.find('$BSP_DIR/../Libraries')
+                line = line[0:position] + '$BSP_DIR/Libraries/Kconfig"\n'
                 found = 0
             f.write(line)
