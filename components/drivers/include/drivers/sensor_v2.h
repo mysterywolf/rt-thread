@@ -28,56 +28,81 @@ extern "C" {
 #define  RT_DEVICE_FLAG_FIFO_RX        0x200     /* Flag to use when the sensor is open by fifo mode */
 
 #define RT_SENSOR_MACRO_GET_NAME(macro) (macro##_STR)
+#define RT_SENSOR_MACRO_GET_BIT(macro)  (macro##_BIT)
 
 /* Sensor types */
-#define RT_SENSOR_TYPE_NONE           (0)
-#define RT_SENSOR_TYPE_NONE_STR       "None"
+#define RT_SENSOR_TYPE_UNKOWN         (0)
+#define RT_SENSOR_TYPE_UNKOWN_STR     "Unknown"
+#define RT_SENSOR_TYPE_UNKOWN_BIT     (0x1ULL << RT_SENSOR_TYPE_UNKOWN)
 #define RT_SENSOR_TYPE_ACCE           (1)
 #define RT_SENSOR_TYPE_ACCE_STR       "Accelerometer"
+#define RT_SENSOR_TYPE_ACCE_BIT       (0x1ULL << RT_SENSOR_TYPE_ACCE)
 #define RT_SENSOR_TYPE_GYRO           (2)
 #define RT_SENSOR_TYPE_GYRO_STR       "Gyroscope"
+#define RT_SENSOR_TYPE_GYRO_BIT       (0x1ULL << RT_SENSOR_TYPE_GYRO)
 #define RT_SENSOR_TYPE_MAG            (3)
 #define RT_SENSOR_TYPE_MAG_STR        "Magnetometer"
+#define RT_SENSOR_TYPE_MAG_BIT        (0x1ULL << RT_SENSOR_TYPE_MAG)
 #define RT_SENSOR_TYPE_TEMP           (4)
 #define RT_SENSOR_TYPE_TEMP_STR       "Temperature"
+#define RT_SENSOR_TYPE_TEMP_BIT       (0x1ULL << RT_SENSOR_TYPE_TEMP)
 #define RT_SENSOR_TYPE_HUMI           (5)
 #define RT_SENSOR_TYPE_HUMI_STR       "Relative Humidity"
+#define RT_SENSOR_TYPE_HUMI_BIT       (0x1ULL << RT_SENSOR_TYPE_HUMI)
 #define RT_SENSOR_TYPE_BARO           (6)
 #define RT_SENSOR_TYPE_BARO_STR       "Barometer"
+#define RT_SENSOR_TYPE_BARO_BIT       (0x1ULL << RT_SENSOR_TYPE_BARO)
 #define RT_SENSOR_TYPE_LIGHT          (7)
 #define RT_SENSOR_TYPE_LIGHT_STR      "Ambient Light"
+#define RT_SENSOR_TYPE_LIGHT_BIT      (0x1ULL << RT_SENSOR_TYPE_LIGHT)
 #define RT_SENSOR_TYPE_PROXIMITY      (8)
 #define RT_SENSOR_TYPE_PROXIMITY_STR  "Proximity"
+#define RT_SENSOR_TYPE_PROXIMITY_BIT  (0x1ULL << RT_SENSOR_TYPE_PROXIMITY)
 #define RT_SENSOR_TYPE_HR             (9)
 #define RT_SENSOR_TYPE_HR_STR         "Heart Rate"
+#define RT_SENSOR_TYPE_HR_BIT         (0x1ULL << RT_SENSOR_TYPE_HR)
 #define RT_SENSOR_TYPE_TVOC           (10)
 #define RT_SENSOR_TYPE_TVOC_STR       "TVOC Level"
+#define RT_SENSOR_TYPE_TVOC_BIT       (0x1ULL << RT_SENSOR_TYPE_TVOC)
 #define RT_SENSOR_TYPE_NOISE          (11)
 #define RT_SENSOR_TYPE_NOISE_STR      "Noise Loudness"
+#define RT_SENSOR_TYPE_NOISE_BIT      (0x1ULL << RT_SENSOR_TYPE_NOISE)
 #define RT_SENSOR_TYPE_STEP           (12)
 #define RT_SENSOR_TYPE_STEP_STR       "Step"
+#define RT_SENSOR_TYPE_STEP_BIT       (0x1ULL << RT_SENSOR_TYPE_STEP)
 #define RT_SENSOR_TYPE_FORCE          (13)
 #define RT_SENSOR_TYPE_FORCE_STR      "Force"
+#define RT_SENSOR_TYPE_FORCE_BIT      (0x1ULL << RT_SENSOR_TYPE_FORCE)
 #define RT_SENSOR_TYPE_DUST           (14)
 #define RT_SENSOR_TYPE_DUST_STR       "Dust"
+#define RT_SENSOR_TYPE_DUST_BIT       (0x1ULL << RT_SENSOR_TYPE_DUST)
 #define RT_SENSOR_TYPE_ECO2           (15)
 #define RT_SENSOR_TYPE_ECO2_STR       "eCO2"
+#define RT_SENSOR_TYPE_ECO2_BIT       (0x1ULL << RT_SENSOR_TYPE_ECO2)
 #define RT_SENSOR_TYPE_GNSS           (16)
 #define RT_SENSOR_TYPE_GNSS_STR       "GNSS"
+#define RT_SENSOR_TYPE_GNSS_BIT       (0x1ULL << RT_SENSOR_TYPE_GNSS)
 #define RT_SENSOR_TYPE_TOF            (17)
 #define RT_SENSOR_TYPE_TOF_STR        "ToF"
+#define RT_SENSOR_TYPE_TOF_BIT        (0x1ULL << RT_SENSOR_TYPE_TOF)
 #define RT_SENSOR_TYPE_SPO2           (18)
 #define RT_SENSOR_TYPE_SPO2_STR       "SpO2"
+#define RT_SENSOR_TYPE_SPO2_BIT       (0x1ULL << RT_SENSOR_TYPE_SPO2)
 #define RT_SENSOR_TYPE_IAQ            (19)
 #define RT_SENSOR_TYPE_IAQ_STR        "IAQ"
+#define RT_SENSOR_TYPE_IAQ_BIT        (0x1ULL << RT_SENSOR_TYPE_IAQ)
 #define RT_SENSOR_TYPE_ETOH           (20)
 #define RT_SENSOR_TYPE_ETOH_STR       "EtOH"
+#define RT_SENSOR_TYPE_ETOH_BIT       (0x1ULL << RT_SENSOR_TYPE_ETOH)
 #define RT_SENSOR_TYPE_BP             (21)
 #define RT_SENSOR_TYPE_BP_STR         "Blood Pressure"
+#define RT_SENSOR_TYPE_BP_BIT         (0x1ULL << RT_SENSOR_TYPE_BP)
 #define RT_SENSOR_TYPE_VOLTAGE        (22)
 #define RT_SENSOR_TYPE_VOLTAGE_STR    "Voltage"
+#define RT_SENSOR_TYPE_VOLTAGE_BIT    (0x1ULL << RT_SENSOR_TYPE_VOLTAGE)
 #define RT_SENSOR_TYPE_CURRENT        (23)
 #define RT_SENSOR_TYPE_CURRENT_STR    "Current"
+#define RT_SENSOR_TYPE_CURRENT_BIT    (0x1ULL << RT_SENSOR_TYPE_CURRENT)
 
 /* Sensor vendor types */
 #define RT_SENSOR_VENDOR_UNKNOWN       (0)
