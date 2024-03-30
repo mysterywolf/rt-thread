@@ -605,7 +605,7 @@ static void sensor(int argc, char **argv)
         sensor = (rt_sensor_t)dev;
         delay  = sensor->info.acquire_min > 100 ? sensor->info.acquire_min : 100;
 
-        for (i = 0; i < num; i++)
+        for (i = 1; i <= num; i++)
         {
             res = rt_device_read(dev, 0, &data, 1);
             if (res != 1)
