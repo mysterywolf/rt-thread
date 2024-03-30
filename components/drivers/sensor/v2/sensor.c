@@ -45,51 +45,32 @@ static char *const sensor_name_str[] =
 };
 
 /* sensor interrupt handler function */
-static void _sensor_cb(rt_sensor_t sen)
+static void _sensor_cb(void *args)
 {
-    if (sen->parent.rx_indicate == RT_NULL)
+    rt_sensor_t sensor = (rt_sensor_t)args;
+    if (sensor->parent.rx_indicate == RT_NULL)
     {
         return;
     }
 
-    if (sen->irq_handle != RT_NULL)
+    if (sensor->irq_handle != RT_NULL)
     {
-        sen->irq_handle(sen);
+        sensor->irq_handle(sensor);
     }
 
     /* The buffer is not empty. Read the data in the buffer first */
-    if (sen->data_len > 0)
+    if (sensor->data_len > 0)
     {
-        sen->parent.rx_indicate(&sen->parent, sen->data_len / sizeof(struct rt_sensor_data));
+        sensor->parent.rx_indicate(&sensor->parent, sensor->data_len / sizeof(struct rt_sensor_data));
     }
-    else if (RT_SENSOR_MODE_GET_FETCH(sen->info.mode) == RT_SENSOR_MODE_FETCH_INT)
+    else if (RT_SENSOR_MODE_GET_FETCH(sensor->info.mode) == RT_SENSOR_MODE_FETCH_INT)
     {
         /* The interrupt mode only produces one data at a time */
-        sen->parent.rx_indicate(&sen->parent, 1);
+        sensor->parent.rx_indicate(&sensor->parent, 1);
     }
-    else if (RT_SENSOR_MODE_GET_FETCH(sen->info.mode) == RT_SENSOR_MODE_FETCH_FIFO)
+    else if (RT_SENSOR_MODE_GET_FETCH(sensor->info.mode) == RT_SENSOR_MODE_FETCH_FIFO)
     {
-        sen->parent.rx_indicate(&sen->parent, sen->info.fifo_max);
-    }
-}
-
-/* ISR for sensor interrupt */
-static void _irq_callback(void *args)
-{
-    rt_sensor_t sensor = (rt_sensor_t)args;
-    rt_uint8_t i;
-
-    if (sensor->module)
-    {
-        /* Invoke a callback for all sensors in the module */
-        for (i = 0; i < sensor->module->sen_num; i++)
-        {
-            _sensor_cb(sensor->module->sen[i]);
-        }
-    }
-    else
-    {
-        _sensor_cb(sensor);
+        sensor->parent.rx_indicate(&sensor->parent, sensor->info.fifo_max);
     }
 }
 
@@ -105,15 +86,15 @@ static rt_err_t _sensor_irq_init(rt_sensor_t sensor)
 
     if (sensor->config.irq_pin.mode == PIN_MODE_INPUT_PULLDOWN)
     {
-        rt_pin_attach_irq(sensor->config.irq_pin.pin, PIN_IRQ_MODE_RISING, _irq_callback, (void *)sensor);
+        rt_pin_attach_irq(sensor->config.irq_pin.pin, PIN_IRQ_MODE_RISING, _sensor_cb, (void *)sensor);
     }
     else if (sensor->config.irq_pin.mode == PIN_MODE_INPUT_PULLUP)
     {
-        rt_pin_attach_irq(sensor->config.irq_pin.pin, PIN_IRQ_MODE_FALLING, _irq_callback, (void *)sensor);
+        rt_pin_attach_irq(sensor->config.irq_pin.pin, PIN_IRQ_MODE_FALLING, _sensor_cb, (void *)sensor);
     }
     else if (sensor->config.irq_pin.mode == PIN_MODE_INPUT)
     {
-        rt_pin_attach_irq(sensor->config.irq_pin.pin, PIN_IRQ_MODE_RISING_FALLING, _irq_callback, (void *)sensor);
+        rt_pin_attach_irq(sensor->config.irq_pin.pin, PIN_IRQ_MODE_RISING_FALLING, _sensor_cb, (void *)sensor);
     }
 
     rt_pin_irq_enable(sensor->config.irq_pin.pin, RT_TRUE);
@@ -148,22 +129,6 @@ static rt_err_t _sensor_open(rt_device_t dev, rt_uint16_t oflag)
     rt_err_t res = RT_EOK;
     rt_err_t (*local_ctrl)(rt_sensor_t sensor, int cmd, void *arg) =  _local_control;
 
-    if (sensor->module)
-    {
-        /* take the module mutex */
-        rt_mutex_take(sensor->module->lock, RT_WAITING_FOREVER);
-    }
-
-    if (sensor->module != RT_NULL && sensor->info.fifo_max > 0 && sensor->data_buf == RT_NULL)
-    {
-        /* Allocate memory for the sensor buffer */
-        sensor->data_buf = rt_malloc(sizeof(struct rt_sensor_data) * sensor->info.fifo_max);
-        if (sensor->data_buf == RT_NULL)
-        {
-            res = -RT_ENOMEM;
-            goto __exit;
-        }
-    }
     if (sensor->ops->control != RT_NULL)
     {
         local_ctrl = sensor->ops->control;
@@ -216,12 +181,6 @@ static rt_err_t _sensor_open(rt_device_t dev, rt_uint16_t oflag)
     }
 
 __exit:
-    if (sensor->module)
-    {
-        /* release the module mutex */
-        rt_mutex_release(sensor->module->lock);
-    }
-
     return res;
 }
 
@@ -229,14 +188,9 @@ static rt_err_t _sensor_close(rt_device_t dev)
 {
     rt_sensor_t sensor = (rt_sensor_t)dev;
     rt_err_t (*local_ctrl)(rt_sensor_t sensor, int cmd, void *arg) = _local_control;
-    int i;
 
     RT_ASSERT(dev != RT_NULL);
 
-    if (sensor->module)
-    {
-        rt_mutex_take(sensor->module->lock, RT_WAITING_FOREVER);
-    }
     if (sensor->ops->control != RT_NULL)
     {
         local_ctrl = sensor->ops->control;
@@ -248,24 +202,6 @@ static rt_err_t _sensor_close(rt_device_t dev)
         RT_SENSOR_MODE_SET_POWER(sensor->info.mode, RT_SENSOR_MODE_POWER_DOWN);
     }
 
-    if (sensor->module != RT_NULL && sensor->info.fifo_max > 0 && sensor->data_buf != RT_NULL)
-    {
-        for (i = 0; i < sensor->module->sen_num; i ++)
-        {
-            if (sensor->module->sen[i]->parent.ref_count > 0)
-                goto __exit;
-        }
-
-        /* Free memory for the sensor buffer */
-        for (i = 0; i < sensor->module->sen_num; i ++)
-        {
-            if (sensor->module->sen[i]->data_buf)
-            {
-                rt_free(sensor->module->sen[i]->data_buf);
-                sensor->module->sen[i]->data_buf = RT_NULL;
-            }
-        }
-    }
     if (RT_SENSOR_MODE_GET_FETCH(sensor->info.mode) != RT_SENSOR_MODE_FETCH_POLLING)
     {
         /* Sensor disable interrupt */
@@ -273,12 +209,6 @@ static rt_err_t _sensor_close(rt_device_t dev)
         {
             rt_pin_irq_enable(sensor->config.irq_pin.pin, RT_FALSE);
         }
-    }
-
-__exit:
-    if (sensor->module)
-    {
-        rt_mutex_release(sensor->module->lock);
     }
 
     return RT_EOK;
@@ -293,11 +223,6 @@ static rt_ssize_t _sensor_read(rt_device_t dev, rt_off_t pos, void *buf, rt_size
     if (buf == NULL || len == 0)
     {
         return 0;
-    }
-
-    if (sensor->module)
-    {
-        rt_mutex_take(sensor->module->lock, RT_WAITING_FOREVER);
     }
 
     /* The buffer is not empty. Read the data in the buffer first */
@@ -323,11 +248,6 @@ static rt_ssize_t _sensor_read(rt_device_t dev, rt_off_t pos, void *buf, rt_size
         }
     }
 
-    if (sensor->module)
-    {
-        rt_mutex_release(sensor->module->lock);
-    }
-
     return result;
 }
 
@@ -339,10 +259,6 @@ static rt_err_t _sensor_control(rt_device_t dev, int cmd, void *args)
     rt_err_t (*local_ctrl)(rt_sensor_t sensor, int cmd, void *arg) = _local_control;
     rt_uint8_t mode;
 
-    if (sensor->module)
-    {
-        rt_mutex_take(sensor->module->lock, RT_WAITING_FOREVER);
-    }
     if (sensor->ops->control != RT_NULL)
     {
         local_ctrl = sensor->ops->control;
@@ -427,11 +343,6 @@ static rt_err_t _sensor_control(rt_device_t dev, int cmd, void *args)
             break;
     }
 
-    if (sensor->module)
-    {
-        rt_mutex_release(sensor->module->lock);
-    }
-
     return result;
 }
 
@@ -477,17 +388,6 @@ int rt_hw_sensor_register(rt_sensor_t    sensor,
 
     rt_memcpy(device_name, sensor_name, rt_strlen(sensor_name) + 1);
     strcat(device_name, name);
-
-    if (sensor->module != RT_NULL && sensor->module->lock == RT_NULL)
-    {
-        /* Create a mutex lock for the module */
-        sensor->module->lock = rt_mutex_create(name, RT_IPC_FLAG_PRIO);
-        if (sensor->module->lock == RT_NULL)
-        {
-            rt_free(device_name);
-            return -RT_ERROR;
-        }
-    }
 
     device = &sensor->parent;
 
