@@ -20,8 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static rt_sem_t sensor_rx_sem = RT_NULL;
-
 static const char *sensor_get_type_name(rt_sensor_info_t info)
 {
     switch(info->type)
@@ -351,78 +349,6 @@ static const char* sensor_get_intf_name(rt_sensor_t sensor)
         return "";
     }
 }
-
-static rt_err_t rx_callback(rt_device_t dev, rt_size_t size)
-{
-    rt_sem_release(sensor_rx_sem);
-    return 0;
-}
-
-static void sensor_fifo_rx_entry(void *parameter)
-{
-    rt_sensor_t sensor = (rt_sensor_t)parameter;
-    struct rt_sensor_data *data = RT_NULL;
-    rt_size_t res, i;
-
-    data = (struct rt_sensor_data *)rt_calloc(sensor->info.fifo_max, sizeof(struct rt_sensor_data));
-    if (data == RT_NULL)
-    {
-        LOG_E("Memory allocation failed!");
-    }
-
-    while (1)
-    {
-        rt_sem_take(sensor_rx_sem, RT_WAITING_FOREVER);
-
-        res = rt_device_read((rt_device_t)sensor, 0, data, sensor->info.fifo_max);
-        for (i = 0; i < res; i++)
-        {
-            sensor_show_data(i, sensor, &data[i]);
-        }
-    }
-}
-
-static void sensor_fifo(int argc, char **argv)
-{
-    static rt_thread_t tid1 = RT_NULL;
-    rt_device_t dev = RT_NULL;
-    rt_sensor_t sensor;
-
-    dev = rt_device_find(argv[1]);
-    if (dev == RT_NULL)
-    {
-        LOG_E("Can't find device:%s", argv[1]);
-        return;
-    }
-    sensor = (rt_sensor_t)dev;
-
-    if (rt_device_open(dev, RT_DEVICE_FLAG_FIFO_RX) != RT_EOK)
-    {
-        LOG_E("open device failed!");
-        return;
-    }
-
-    if (sensor_rx_sem == RT_NULL)
-    {
-        sensor_rx_sem = rt_sem_create("sen_rx_sem", 0, RT_IPC_FLAG_FIFO);
-    }
-    else
-    {
-        LOG_E("The thread is running, please reboot and try again");
-        return;
-    }
-
-    tid1 = rt_thread_create("sen_rx_thread",
-                            sensor_fifo_rx_entry, sensor,
-                            1024,
-                            15, 5);
-
-    if (tid1 != RT_NULL)
-        rt_thread_startup(tid1);
-
-    rt_device_set_rx_indicate(dev, rx_callback);
-}
-MSH_CMD_EXPORT(sensor_fifo, Sensor fifo mode test function);
 
 static void sensor_cmd_warning_unknown(void)
 {
