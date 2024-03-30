@@ -424,67 +424,6 @@ static void sensor_fifo(int argc, char **argv)
 }
 MSH_CMD_EXPORT(sensor_fifo, Sensor fifo mode test function);
 
-static void sensor_irq_rx_entry(void *parameter)
-{
-    rt_device_t dev = (rt_device_t)parameter;
-    rt_sensor_t sensor = (rt_sensor_t)parameter;
-    struct rt_sensor_data data;
-    rt_size_t res, i = 0;
-
-    while (1)
-    {
-        rt_sem_take(sensor_rx_sem, RT_WAITING_FOREVER);
-
-        res = rt_device_read(dev, 0, &data, 1);
-        if (res == 1)
-        {
-            sensor_show_data(i++, sensor, &data);
-        }
-    }
-}
-
-static void sensor_int(int argc, char **argv)
-{
-    static rt_thread_t tid1 = RT_NULL;
-    rt_device_t dev = RT_NULL;
-    rt_sensor_t sensor;
-
-    dev = rt_device_find(argv[1]);
-    if (dev == RT_NULL)
-    {
-        LOG_E("Can't find device:%s", argv[1]);
-        return;
-    }
-    sensor = (rt_sensor_t)dev;
-
-    if (sensor_rx_sem == RT_NULL)
-    {
-        sensor_rx_sem = rt_sem_create("sen_rx_sem", 0, RT_IPC_FLAG_FIFO);
-    }
-    else
-    {
-        LOG_E("The thread is running, please reboot and try again");
-        return;
-    }
-
-    tid1 = rt_thread_create("sen_rx_thread",
-                            sensor_irq_rx_entry, sensor,
-                            1024,
-                            15, 5);
-
-    if (tid1 != RT_NULL)
-        rt_thread_startup(tid1);
-
-    rt_device_set_rx_indicate(dev, rx_callback);
-
-    if (rt_device_open(dev, RT_DEVICE_FLAG_INT_RX) != RT_EOK)
-    {
-        LOG_E("open device failed!");
-        return;
-    }
-}
-MSH_CMD_EXPORT(sensor_int, Sensor interrupt mode test function);
-
 static void sensor_cmd_warning_unknown(void)
 {
     LOG_W("Unknown command, please enter 'sensor' get help information!");
