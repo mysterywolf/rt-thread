@@ -485,52 +485,6 @@ static void sensor_int(int argc, char **argv)
 }
 MSH_CMD_EXPORT(sensor_int, Sensor interrupt mode test function);
 
-static void sensor_polling(int argc, char **argv)
-{
-    rt_uint16_t num = 10;
-    rt_device_t dev = RT_NULL;
-    rt_sensor_t sensor;
-    struct rt_sensor_data data;
-    rt_size_t res, i;
-    rt_int32_t delay;
-    rt_err_t result;
-
-    dev = rt_device_find(argv[1]);
-    if (dev == RT_NULL)
-    {
-        LOG_E("Can't find device:%s", argv[1]);
-        return;
-    }
-    if (argc > 2)
-        num = atoi(argv[2]);
-
-    sensor = (rt_sensor_t)dev;
-    delay  = sensor->info.acquire_min > 100 ? sensor->info.acquire_min : 100;
-
-    result = rt_device_open(dev, RT_DEVICE_FLAG_RDONLY);
-    if (result != RT_EOK)
-    {
-        LOG_E("open device failed! error code : %d", result);
-        return;
-    }
-
-    for (i = 0; i < num; i++)
-    {
-        res = rt_device_read(dev, 0, &data, 1);
-        if (res != 1)
-        {
-            LOG_E("read data failed!size is %d", res);
-        }
-        else
-        {
-            sensor_show_data(i, sensor, &data);
-        }
-        rt_thread_mdelay(delay);
-    }
-    rt_device_close(dev);
-}
-MSH_CMD_EXPORT(sensor_polling, Sensor polling mode test function);
-
 static void sensor_cmd_warning_unknown(void)
 {
     LOG_W("Unknown command, please enter 'sensor' get help information!");
