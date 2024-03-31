@@ -80,7 +80,7 @@ void switchToSPI(const char *bus_name)
         // Make the CS pin available to picotool
         bi_decl(bi_1pin_with_name(BSP_SPI0_CS_PIN, "SPI CS"));
 
-        LOG_I("D16, D17, D18 and D19 will switch from PWM to SPI");
+        LOG_I("D16, D17, D18 and D19 will switch to SPI");
     }
 }
 #endif /* RTDUINO_USING_SPI */
