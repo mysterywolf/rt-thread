@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - master
+      - pico-ci-research
     paths-ignore:
       - documentation/**
       - '**/README.md'
@@ -16,6 +17,7 @@ on:
   pull_request:
     branches:
       - master
+      - pico-ci-research
     paths-ignore:
       - documentation/**
       - '**/README.md'
