@@ -231,7 +231,7 @@ static void utest_do_run(const char *utest_name)
             {
                 if (tc_table[i].init() != RT_EOK)
                 {
-                    LOG_E("[  FAILED  ] [ result   ] testcase (%s)", tc_table[i].name);
+                    LOG_E("[  FAILED  ] [ result   ] testcase init (%s)", tc_table[i].name);
                     goto __tc_continue;
                 }
             }
@@ -259,7 +259,7 @@ static void utest_do_run(const char *utest_name)
             {
                 if (tc_table[i].cleanup() != RT_EOK)
                 {
-                    LOG_E("[  FAILED  ] [ result   ] testcase (%s)", tc_table[i].name);
+                    LOG_E("[  FAILED  ] [ result   ] testcase cleanup (%s)", tc_table[i].name);
                     goto __tc_continue;
                 }
             }
